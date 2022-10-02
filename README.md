@@ -11,4 +11,6 @@ Amap's web API is based on Javascript. The official guide: https://lbs.amap.com/
 ### 1. The building layer
 Amap’s API offers access to Amap’s multiple tile layers, satellite images and road networks. For this project, we customized the default map layer to show only the building footprint in Balck and their surroundings in White (specify the “mapStyle” parameter when creating the map), as shown in the figure below. It should be noted that the buildings would only appear when the map is zoomed to level 17 or lower, therefore if the map appears to be blank please zoom in to have more details.
 
+![alt text](https://github.com/Muyang-Jiang/Amap-Building-Data-Acquisition/blob/main/pics/building_layer.png)
+
 
