@@ -1,0 +1,321 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <title>Object3D 的添加/移除</title>
+    <meta name="description" content="对 Object3D 对象进行添加和移除的基本操作。">
+    <script src="http://localhost:8000/VS_JS_workspace/demoutils.js"></script>
+    <script src="http://localhost:8000/VS_JS_workspace/utils.js"></script>
+    <style>
+        html,
+        body,
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<style type="text/css">
+    html,body{
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+    }
+    .map{
+        height: 100%;
+        width: 100%;
+        float: left;
+    }
+    .input-card {
+        width: 150px;
+        top: 20px;
+        right: 20px;
+        bottom: auto;
+    }
+    .info {
+        width: 150px;
+        top: auto;
+        left: 20px;
+        bottom: 20px;
+    }
+</style>
+
+<body>
+<div id="container"></div>
+
+     <!--信息版 -->
+     <div class="info">
+        <h4>获取地图级别与中心点坐标</h4>
+        <p>当前级别：<span id="map-zoom">10</span></p>
+        <p>当前中心点：<span id="map-center">116.407387,39.904179</span></p>
+    </div>
+
+
+    <!--输入板 -->
+    <div class="input-card" style="width:24rem;">
+
+        <!--添加与删除卫星、路网图层 -->
+      <h3>添加、删除图层（Layer）</h3>
+      <div class="input-item">
+        <label>卫星图层：</label>
+        <button class="btn" id="add-satellite-layer" style="margin-right:1rem;">添加卫星图层</button>
+        <button class="btn" id="remove-satellite-layer">删除卫星图层</button>
+      </div>
+      
+      <div class="input-item">
+        <label>红色标记：</label>
+        <button class="btn" id="add-roadnet-layer" style="margin-right:1rem;">添加路网图层</button>
+        <button class="btn" id="remove-roadnet-layer">删除路网图层</button>
+      </div>
+
+        <!--辅助功能 -->
+        <h3>辅助功能</h3>
+        <div class="input-item">
+            <button class="btn" id="zoom_17" >返回17级</button> &nbsp; 
+            <button class="btn" id="north" >指向正北</button> &nbsp;
+            <button class="btn" id="down" >3D俯视</button>
+        </div>
+        
+        <!-- 经纬度 -->
+        <h3>经纬度</h3>
+        <div class="input-item">
+            跳转经纬度：<button class="btn" id="query_lnglat">去指定经纬度</button>
+        </div>
+        <div class="input-item">
+            latitude：<input type="text"  id="lat"> &nbsp;         
+        </div> 
+        <div class="input-item">
+            longitude：<input type="text"   id="lng">            
+        </div> 
+
+
+        <!-- 行政区 -->
+        <h3>设置地图当前行政区</h3>
+        <div class="input-item">
+            <button class="btn" id="query_city">去指定城市</button> &nbsp;<input id='city-name' placeholder="北京市" type="text" style="margin-right:1rem;">
+        </div>
+
+
+        <!-- bounding box -->
+        <h3>Defining bounding box</h3>
+
+        <div class="input-item">
+            <button id="add-obj3d-btn" class="btn">Add 3D box</button> &nbsp;<input type="text" id="add_height_box" placeholder=10>            
+        </div> 
+
+        <div class="input-item">            
+            <button id="rm-obj3d-btn" class="btn">Remoce 3D box</button> &nbsp;<input type="text" id="rm_height_box" placeholder=10>
+        </div>
+    </div>
+
+
+<!-- 加载地图JSAPI脚本 -->
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode:'de00b92ee70e4745437d5dec9c8cea87',
+    }
+</script>
+
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3128e64b982091c3c838fe85d83c1295&plugin=Map3D"></script> 
+
+
+<script>
+    //创建默认图层
+    var layer = new AMap.TileLayer({
+        zooms:[3,20],    //可见级别
+        visible:true,    //是否可见
+        opacity:1,       //透明度
+        zIndex:10        //叠加层级
+    })
+
+    // 构造官方卫星、路网图层
+    var satelliteLayer = new AMap.TileLayer.Satellite({
+        zIndex:1,
+        opacity:3
+    });
+    var roadNetLayer =  new AMap.TileLayer.RoadNet();
+
+    
+    // 添加 Object3DLayer 图层，用于添加 3DObject 对象
+    var object3Dlayer = new AMap.Object3DLayer();
+
+    //创建3D底图
+    var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 17,
+        // viewMode: '3D',
+        pitch: 0,
+        rotation: 0,
+        center: [116.39756, 39.904215],
+        layers:[
+            object3Dlayer,
+            // satelliteLayer,
+            // roadNetLayer,
+            layer
+        ],
+
+        center: [116.407387,39.904179],
+        mapStyle:'amap://styles/00407811bbcee7700cc04f43381bf3e7'
+    });
+
+    // 以不规则棱柱体 Prism 为例，添加至 3DObjectLayer 图层中
+    var paths = [
+        [116.505951,39.930129],
+        [116.399127,39.930178],
+        [116.399534,39.900413],
+        [116.506316,39.900331]
+    ];
+
+    var bounds = paths.map(function(path) {
+        return new AMap.LngLat(path[0], path[1]);
+    });
+
+    // 创建 Object3D 对象
+    var prism_1 = new AMap.Object3D.Prism({
+        path: bounds,
+        height: 60,
+        color: 'rgba(100, 150, 230, 0.7)' // 支持 #RRGGBB、rgb()、rgba() 格式数据
+    });
+
+    var prism_2 = new AMap.Object3D.Prism({
+        path: bounds,
+        height: 10,
+        color: 'rgba(255, 0, 0, 0.2)' // 支持 #RRGGBB、rgb()、rgba() 格式数据
+    });
+
+    var prism_3 = new AMap.Object3D.Prism({
+        path: bounds,
+        height: 30,
+        color: 'rgba(0, 255, 0, 0.2)' // 支持 #RRGGBB、rgb()、rgba() 格式数据
+    });
+
+    // 开启透明度支持
+    //prism.transparent = true;
+
+    // 添加至 3D 图层
+    //object3Dlayer.add(prism);
+    //object3Dlayer.add(prism_2);
+    //object3Dlayer.add(prism_3);
+
+    AMap.plugin('AMap.ToolBar',function(){//异步加载toolbar插件
+            var toolbar = new AMap.ToolBar();
+            map.addControl(toolbar);
+        });
+
+    //为地图注册click事件获取鼠标点击出的经纬度坐标    
+    map.on('click', function(e) {
+        document.getElementById("lng").value = e.lnglat.getLng()
+        document.getElementById("lat").value = e.lnglat.getLat()
+    }); 
+
+    //绑定按钮事件
+
+    //根据高度创建box
+    
+    function random_rgba() {
+        var o = Math.round, r = Math.random, s = 255;
+        return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+    }
+
+    function grad_rgba(val) {
+        var o = Math.round, r = val/300, s = 255;
+        return 'rgba(' + o(r*s) + ',' + o(r*s) + ',' + o(r*s) + ',' + r.toFixed(1) + ')';
+    }
+
+
+
+    function createbox() {      
+        var val = document.querySelector('#add_height_box').value; 
+        if (!val) {
+            val = 10;
+        }
+
+        //var color = random_rgba();
+        //var color = grad_rgba(val);
+        color = 'rgba(255,0,0,0.1)';
+
+        var prism = new AMap.Object3D.Prism({
+            path: bounds,
+            height: val,
+            color: color // 支持 #RRGGBB、rgb()、rgba() 格式数据
+        });
+
+        prism.transparent = true;
+
+        object3Dlayer.add(prism);
+        log.info(`已添加box，高度为${val}米`);
+    } 
+
+    document.querySelector("#add-obj3d-btn").onclick = createbox;
+
+    document.querySelector("#rm-obj3d-btn").onclick = function() {
+        // 从 3D 图层中移除
+        object3Dlayer.clear();
+    };
+
+    //图层删减事件绑定
+    document.querySelector("#add-satellite-layer").onclick = function() {
+    map.add(satelliteLayer);
+    }
+
+    document.querySelector("#remove-satellite-layer").onclick = function() {
+    map.remove(satelliteLayer);
+    }
+
+    document.querySelector("#add-roadnet-layer").onclick = function() {
+    map.add(roadNetLayer);
+    }
+
+    document.querySelector("#remove-roadnet-layer").onclick = function() {
+    map.remove(roadNetLayer);
+    }
+    //绑定按钮事件，改变地图层级
+    document.querySelector("#zoom_17").onclick = function() {
+    var zoom = 17; //zoom范围[17]
+    map.setZoom(zoom); //设置地图层级
+    log.info(`当前层级已设为${zoom}级`);
+    }
+
+    //绑定按钮事件，地图指向正北
+    document.querySelector("#north").onclick = function() {
+    map.setRotation(0); //设置地图旋转方向
+    log.info(`当前地图已指向正北`);
+    }
+
+    //绑定按钮事件，地图俯视
+    document.querySelector("#down").onclick = function() {
+    map.setPitch(0); //设置地图俯视角
+    log.info(`当前地图已俯视`);
+    }
+
+    //绑定查询点击、回车事件，前往城市
+    document.querySelector('#query_city').onclick = gotoCity;
+    document.querySelector('#city-name').onkeydown = function(e) {
+    if (e.keyCode === 13) {
+        gotoCity();
+        return false;
+    }
+    return true;
+    };
+
+    // 绑定经纬度跳转
+    document.querySelector('#query_lnglat').onclick = gotolnglat;
+    document.querySelector('#city-name').onkeydown = function(e) {
+    if (e.keyCode === 13) {
+        gotolnglat();
+        return false;
+    }
+    return true;
+    };  
+    
+    // 绑定信息版显示数据
+    map.on('moveend', logMapinfo);
+    map.on('zoomend', logMapinfo);        
+
+</script>
+</body>
+</html>

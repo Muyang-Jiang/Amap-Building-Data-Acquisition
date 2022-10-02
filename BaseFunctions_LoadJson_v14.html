@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+  <title>图层的添加与移除</title>
+  <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+  <meta   http-equiv="Content-Security-Policy"   content="upgrade-insecure-requests">
+  <script src="http://localhost:8000/VS_JS_workspace/demoutils.js"></script>
+  <script src="http://localhost:8000/VS_JS_workspace/utils.js"></script>
+  <script src="https://unpkg.com/gcoord/dist/gcoord.js"></script>
+  <style>
+    html,
+    body,
+    #container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+
+</head>
+
+<style type="text/css">
+    html,body{
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+    }
+    .map{
+        height: 100%;
+        width: 100%;
+        float: left;
+    }
+    .input-card {
+        width: 150px;
+        top: 20px;
+        left: 20px;
+        bottom: auto;
+    }
+</style>
+
+<body>
+     <!--地图 -->
+    <div id="container" class="map"></div>
+
+     <!--信息版 -->
+    <div class="info">
+        <h4>获取地图级别与中心点坐标</h4>
+        <p>当前级别：<span id="map-zoom">10</span></p>
+        <p>当前中心点：<span id="map-center">116.407387,39.904179</span></p>
+    </div>
+
+
+    <!--输入板 -->
+    <div class="input-card" style="width:24rem;">
+
+        <!--添加与删除卫星、路网图层 -->
+      <h4>添加、删除图层（Layer）</h4>
+      <div class="input-item">
+        <label>卫星图层：</label>
+        <button class="btn" id="add-satellite-layer" style="margin-right:1rem;">添加卫星图层</button>
+        <button class="btn" id="remove-satellite-layer">删除卫星图层</button>
+      </div>
+      
+      <div class="input-item">
+        <label>红色标记：</label>
+        <button class="btn" id="add-roadnet-layer" style="margin-right:1rem;">添加路网图层</button>
+        <button class="btn" id="remove-roadnet-layer">删除路网图层</button>
+      </div>
+
+        <!--改变zoom等级 -->
+        <h4>改变zoom等级</h4>
+        <div class="input-item">
+            <label>缩放等级：</label>
+            <button class="btn" id="zoom_17" >返回17级</button>            
+        </div>
+        
+        <!-- 经纬度 -->
+        <div class="input-item">
+            跳转经纬度：<button class="btn" id="query_lnglat">去指定经纬度</button>
+        </div>
+        <div class="input-item">
+            latitude：<input type="text"  id="lat"> &nbsp;         
+        </div> 
+        <div class="input-item">
+            longitude：<input type="text"   id="lng">            
+        </div> 
+
+
+        <!-- 行政区 -->
+        <h4>设置地图当前行政区</h4>
+        <div class="input-item">
+            <input id='city-name' placeholder="北京市" type="text" style="margin-right:1rem;"><button class="btn" id="query_city">去指定城市</button>
+        </div>
+
+        <!-- 添加json数据 -->
+        <h4>json数据</h4>
+        <div class="input-item">
+            <input id='json-name' placeholder="Beijing_polygon.json" type="text" style="margin-right:1rem;"><button class="btn" id="query_json">加载数据</button><button class="btn" id="query_clear_json">删除数据</button>
+        </div>
+    </div>
+
+
+    <!-- 加载地图JSAPI脚本 -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode:'de00b92ee70e4745437d5dec9c8cea87',
+        }
+    </script>
+
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=3128e64b982091c3c838fe85d83c1295&&plugin=AMap.Scale,AMap.HawkEye,AMap.ToolBar,AMap.ControlBar,AMap.GeoJSON"></script> 
+
+    <script type="text/javascript">
+
+        //创建默认图层
+        var layer = new AMap.createDefaultLayer({
+            zooms:[3,20],    //可见级别
+            visible:true,    //是否可见
+            opacity:1,       //透明度
+            zIndex:10        //叠加层级
+        })
+
+        // 构造官方卫星、路网图层
+        var satelliteLayer = new AMap.TileLayer.Satellite({
+            zIndex:1,
+            opacity:3
+        });
+        var roadNetLayer =  new AMap.TileLayer.RoadNet();
+  
+        //批量添加图层
+        // map.add([satelliteLayer, roadNetLayer]);
+
+
+        //创建地图
+        var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 8,
+            //viewMode: '3D',
+            layers:[
+                satelliteLayer,
+                // roadNetLayer,
+                layer
+            ],
+
+            center: [116.407387,39.904179],
+            mapStyle:'amap://styles/00407811bbcee7700cc04f43381bf3e7'
+        });
+   
+        AMap.plugin('AMap.ToolBar',function(){//异步加载toolbar插件
+            var toolbar = new AMap.ToolBar();
+            map.addControl(toolbar);
+        });
+        //为地图注册click事件获取鼠标点击出的经纬度坐标    
+        map.on('click', function(e) {
+            document.getElementById("lng").value = e.lnglat.getLng()
+            document.getElementById("lat").value = e.lnglat.getLat()
+        }); 
+
+        
+        //事件绑定
+        document.querySelector("#add-satellite-layer").onclick = function() {
+        map.add(satelliteLayer);
+        }
+
+        document.querySelector("#remove-satellite-layer").onclick = function() {
+        map.remove(satelliteLayer);
+        }
+
+        document.querySelector("#add-roadnet-layer").onclick = function() {
+        map.add(roadNetLayer);
+        }
+
+        document.querySelector("#remove-roadnet-layer").onclick = function() {
+        map.remove(roadNetLayer);
+        }
+        //绑定按钮事件，改变地图层级
+        document.querySelector("#zoom_17").onclick = function() {
+        var zoom = 17; //zoom范围[17]
+        map.setZoom(zoom); //设置地图层级
+        log.info(`当前层级已设为${zoom}级`);
+        }
+
+        //绑定查询点击、回车事件，前往城市
+        document.querySelector('#query_city').onclick = gotoCity;
+        document.querySelector('#city-name').onkeydown = function(e) {
+        if (e.keyCode === 13) {
+            gotoCity();
+            return false;
+        }
+        return true;
+        };
+
+        // 绑定经纬度跳转
+        document.querySelector('#query_lnglat').onclick = gotolnglat;
+        document.querySelector('#city-name').onkeydown = function(e) {
+        if (e.keyCode === 13) {
+            gotolnglat();
+            return false;
+        }
+        return true;
+        };  
+        
+        // 绑定信息版显示数据
+        map.on('moveend', logMapinfo);
+        map.on('zoomend', logMapinfo);        
+        
+
+
+        //坐标系转换
+        //const gcoord = require('gcoord');
+
+        // 绑定点击、回车事件，加载自有json数据
+        const data_folder = 'http://localhost:8000/VS_JS_workspace/data/';
+
+
+        document.querySelector('#query_json').onclick = function(){
+            loadjson(data_folder);                        
+        };
+
+        document.querySelector('#json-name').onkeydown = function(e) {
+        if (e.keyCode === 13) {
+            loadjson(data_folder);
+            return false;
+        }
+        return true;
+        };
+
+        document.querySelector('#query_clear_json').onclick = function(){
+            map.clearMap();                      
+        };
+             
+
+    </script>
+  </body>
+  
+  </html>
+

@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+  <title>图层的添加与移除</title>
+  <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+  <meta   http-equiv="Content-Security-Policy"   content="upgrade-insecure-requests">
+  <script src="http://localhost:8000/VS_JS_workspace/demoutils.js"></script>
+  <script src="http://localhost:8000/VS_JS_workspace/utils.js"></script>
+  <style>
+    html,
+    body,
+    #container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+
+</head>
+
+<style type="text/css">
+    html,body{
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+    }
+    .map{
+        height: 100%;
+        width: 100%;
+        float: left;
+    }
+    .input-card {
+        width: 150px;
+        top: 20px;
+        left: 20px;
+        bottom: auto;
+    }
+</style>
+
+<body>
+     <!--地图 -->
+    <div id="container" class="map"></div>
+
+    <!-- 加载地图JSAPI脚本 -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode:'de00b92ee70e4745437d5dec9c8cea87',
+        }
+    </script>
+
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=3128e64b982091c3c838fe85d83c1295&&plugin=AMap.Scale,AMap.HawkEye,AMap.ToolBar,AMap.ControlBar,AMap.GeoJSON"></script> 
+
+    <script type="text/javascript">
+
+        //创建默认图层
+        var layer = new AMap.createDefaultLayer({
+            zooms:[3,20],    //可见级别
+            visible:true,    //是否可见
+            opacity:1,       //透明度
+            zIndex:10        //叠加层级
+        })
+
+
+        //创建地图
+        var map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 17,
+            //viewMode: '3D',
+            layers:[
+                //satelliteLayer,
+                // roadNetLayer,
+                layer
+            ],
+
+            center: [116.407387,39.904179],
+            mapStyle:'amap://styles/00407811bbcee7700cc04f43381bf3e7'
+        });
+
+        //为地图注册click事件获取鼠标点击出的经纬度坐标    
+        map.on('click', function(e) {
+            //document.getElementById("lng").value = e.lnglat.getLng()
+            //document.getElementById("lat").value = e.lnglat.getLat()
+            console.log(e.lnglat.getLng(), "," , e.lnglat.getLat());
+        }); 
+
+        var x = 0;
+        var y = 0;
+        // document.elementFromPoint(x, y).click();
+
+        // move the map every 3 seconds
+        function move_map(){
+            document.elementFromPoint(x, y).click();
+            console.info(layer.getOptions().tileUrl);
+
+            map.panBy(50, 100);
+            setTimeout(move_map, 3000);
+        }
+
+        move_map();
+        
+        //事件绑定
+        function printMapinfo(){
+            var center = map.getCenter(); //获取当前地图中心位置
+            log.info(center);
+        }
+
+        //lngLatToPixel(lnglat, zoom?)
+
+        
+        // 绑定信息版显示数据
+        //map.on('moveend', printMapinfo)
+    </script>
+  </body>
+  
+  </html>
+
