@@ -23,6 +23,9 @@ Although the pipeline of the project seems very clear, several critical issues a
 ## About Amap JS API
 Amap's web API is based on Javascript. The official guide: https://lbs.amap.com/api/jsapi-v2/summary/. To use the API a free security key would be required (in the code there is a part called “加载地图脚本”). I kept my key in the code, but it is recommended to create your own key at the Amap platform. 
 
+## About code
+I wrote the code “BaseFunctions_LoadJson_v20.html” and “BaseFunctions_3DBox_v14.html” to test some functions that I will introduce in the following. The code “web_crawler_v14.html” is the ongoing web crawling project that I am still developing and will continue to update. They are in simple HTML as I want to have a more intuitive understanding of how the map looks like during the development phase, but later I would probably turn them into Noje.js. 
+
 ### Version control:
 Currently, two versions are used in Amap’s guide. V2.0 is suitable for loading local geojson data, while creating 3D objects is now only supported in V1.4. Therefore it is important to use the correct version when loading the JS API. I have also specified it in the name of the code.
 
