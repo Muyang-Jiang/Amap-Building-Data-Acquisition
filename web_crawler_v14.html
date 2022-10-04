@@ -51,12 +51,12 @@
         }
     </script>
 
-    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=3128e64b982091c3c838fe85d83c1295&&plugin=AMap.Scale,AMap.HawkEye,AMap.ToolBar,AMap.ControlBar,AMap.GeoJSON"></script> 
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3128e64b982091c3c838fe85d83c1295"></script> 
 
     <script type="text/javascript">
 
         //创建默认图层
-        var layer = new AMap.createDefaultLayer({
+        var layer = new AMap.TileLayer({
             zooms:[3,20],    //可见级别
             visible:true,    //是否可见
             opacity:1,       //透明度
@@ -93,13 +93,34 @@
         // move the map every 3 seconds
         function move_map(){
             document.elementFromPoint(x, y).click();
-            console.info(layer.getOptions().tileUrl);
-
             map.panBy(50, 100);
             setTimeout(move_map, 3000);
         }
 
-        move_map();
+
+        function move_map_url(){                      
+            //layer_opt = layer.getOptions();
+            //console.info(Object.keys(layer_opt));
+
+
+            //console.info(layer.getTiles());
+            //console.info(typeof(layer.getTiles()[0]));
+
+            if (typeof(layer.getTiles()[0]) ==="string"){
+                var tile = layer.getTiles()[0];
+                var tile_x = tile.split(",")[0];
+                var tile_y = tile.split(",")[1];
+
+                console.info(tile_x);
+                console.info(layer.getTileUrl());                
+            }
+            map.panBy(50, 100);
+            setTimeout(move_map_url, 3000);            
+            
+        }
+
+
+        move_map_url();
         
         //事件绑定
         function printMapinfo(){

@@ -8,9 +8,9 @@
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
-            //"url": "http://localhost:8000/VS_JS_workspace/3D_costum_city.html",
-            //"url": "http://localhost:8000/VS_JS_workspace/BaseFunctions_LoadJson_v14.html",
-            "url": "http:/localhost:8000/Users/jmy/Desktop/RS-buildings/GitHub/Amap_building/Amap-Building-Data-Acquisition/catch_map.html",
+            "url": "http:/localhost:8000/Users/jmy/Desktop/RS-buildings/GitHub/Amap_building/Amap-Building-Data-Acquisition/BaseFunctions_3DBox_v14.html",
+            //"url": "http:/localhost:8000/Users/jmy/Desktop/RS-buildings/GitHub/Amap_building/Amap-Building-Data-Acquisition/BaseFunctions_LoadJson_v20.html",
+            //"url": "http:/localhost:8000/Users/jmy/Desktop/RS-buildings/GitHub/Amap_building/Amap-Building-Data-Acquisition/web_crawler_v14.html",
             "webRoot": "${workspaceFolder}"
         },
     ]
