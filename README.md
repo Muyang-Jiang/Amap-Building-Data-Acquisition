@@ -48,6 +48,11 @@ Useful map functions: panBy(x,y): pan by pixel, panTo(x,y), setZoom(),
 #### Loading local JSON files
 It is possible to load local JSON data, as long as the code and the data a from the same server. The code is "BaseFunctions_LoadJson_v20.html". What I did was just creating a simple python server via the command ‘python3 -m http.server 8000’. 
 
+#### Using 3D boxes to estimate the height of buildings
+In JS API version 1.4 with 3D mode turned on, users are allowed to create transparent 3D boxes with specified heights. By overlaying multiple boxes, buildings with different heights would appear to have different colors. For example, in the picture shown below, I add a transparent red box every 10 meters, from 0 to 100 m. Buildings higher than 100 m are never covered by any boxes so they remain total black, while lower buildings have been overlaid by several boxes and the roof color appears to be more light.
+
+![alt text](https://github.com/Muyang-Jiang/Amap-Building-Data-Acquisition/blob/main/pics/3Dbox_overlay.png)
+
 
 
 
